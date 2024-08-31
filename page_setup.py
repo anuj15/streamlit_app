@@ -21,7 +21,8 @@ anime_finder = st.Page(page='page/anime_finder.py', title='Anime Finder', icon='
 # NAVIGATION SETUP [WITH SECTIONS]
 pg = st.navigation(
     {
-        'Apps': [movie_finder, anime_finder, to_do, static_company, happiness_index, weather, quiz],
+        'Entertainment': [movie_finder, anime_finder],
+        'Apps': [to_do, static_company, happiness_index, weather, quiz],
         'Info': [portfolio, contact_me],
     }
 )

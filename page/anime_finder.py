@@ -10,8 +10,7 @@ urllib3.disable_warnings()
 KITSU_API_ENDPOINT = st.secrets['KITSU_API_ENDPOINT']
 
 TITLE = 'Anime Finder'
-st.write(f'<h1 style=text-align:left>{TITLE}</h1>', unsafe_allow_html=True)
-st.write('<hr>', unsafe_allow_html=True)
+st.write(f'<h1 style=text-align:left>{TITLE}</h1><hr>', unsafe_allow_html=True)
 st.markdown('<style>' + open('style/movie.css').read() + '</style>', unsafe_allow_html=True)
 
 # Initialization
@@ -59,6 +58,7 @@ def search():
                     <p>{response['synopsis']}</p>
                 </div>
                 """
+            st.balloons()
         else:
             st.session_state.anime_details = """
                         <div class="details">
@@ -77,4 +77,4 @@ def search():
 
 st.text_input(label='Anime Title', placeholder='Enter complete or partial anime name', key='title', on_change=search)
 time.sleep(1)
-st.markdown(st.session_state.anime_details, unsafe_allow_html=True)
+show_details = st.markdown(st.session_state.anime_details, unsafe_allow_html=True)

@@ -22,11 +22,13 @@ if place:
             dates = [x['dt_txt'] for x in data]
             figure = px.line(x=dates, y=temp, labels={'x': 'Date', 'y': 'Temperature (c)'}, title='Temperature vs Date')
             st.plotly_chart(figure_or_data=figure)
+            st.balloons()
         else:
             sky_conditions = [x['weather'][0]['main'] for x in data]
             paths = []
             for condition in sky_conditions:
                 paths.append(f'{IMAGES}{condition.lower()}.png')
             st.image(image=paths, width=90)
+            st.balloons()
     except KeyError:
         st.write('This place does not exist')

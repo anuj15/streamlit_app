@@ -4,8 +4,7 @@ from common_functions import get_quiz_data
 
 NO_DATA_IMAGE = 'images/no_data_found/oops.png'
 TITLE = 'Quiz'
-st.write(f'<h1 style=text-align:left>{TITLE}</h1>', unsafe_allow_html=True)
-st.write('<hr>', unsafe_allow_html=True)
+st.write(f'<h1 style=text-align:left>{TITLE}</h1><hr>', unsafe_allow_html=True)
 
 quiz_category = {'G.K.': 9, 'Books': 10, 'Movies': 11, 'Music': 12, 'Musicals': 13, 'Television': 14, 'Video Games': 15,
                  'Board Games': 16, 'Nature': 17, 'Computers': 18, 'Maths': 19, 'Mythology': 20, 'Sports': 21,
@@ -17,28 +16,47 @@ quiz_type = {'Multiple Choice': 'multiple', 'True / False': 'boolean'}
 st.selectbox(label='Category', options=quiz_category.keys(), key='category')
 st.selectbox(label='Difficulty', options=quiz_difficulty.keys(), key='difficulty')
 st.selectbox(label='Type', options=quiz_type.keys(), key='q_type')
-st.write('<hr>', unsafe_allow_html=True)
 
 category = st.session_state.category
 difficulty = st.session_state.difficulty
 q_type = st.session_state.q_type
 
-is_data_available = get_quiz_data(quiz_category[category], quiz_difficulty[difficulty], quiz_type[q_type])
+# Initialize session state variables if they don't exist
+if 'is_data_available' not in st.session_state:
+    st.session_state.is_data_available = None
+if 'show_results' not in st.session_state:
+    st.session_state.show_results = False
+if 'score' not in st.session_state:
+    st.session_state.score = ''
+if 'user_answers' not in st.session_state:
+    st.session_state.user_answers = []
 
-if is_data_available is None:
-    st.image(image=NO_DATA_IMAGE, width=300)
-    st.write('No Questions found for this combination. Try something else.')
 
-else:
-    questions, answers, options = is_data_available
-    if 'score' not in st.session_state:
-        st.session_state.score = ''
+# Function to reset the quiz state
+def reset_quiz_state():
+    st.session_state.is_data_available = None
+    st.session_state.show_results = False
+    st.session_state.score = ''
+    st.session_state.user_answers = []
+    for j in range(10):
+        if f'answer_{j}' in st.session_state:
+            del st.session_state[f'answer_{j}']
+
+
+# Fetch quiz data when the button is clicked
+if st.button('Get Quiz Data'):
+    reset_quiz_state()
+    st.session_state.is_data_available = get_quiz_data(quiz_category[category], quiz_difficulty[difficulty],
+                                                       quiz_type[q_type])
+
+if st.session_state.is_data_available:
+    questions, answers, options = st.session_state.is_data_available
 
 
     def check_answers():
         user_answers = []
-        for j in range(10):
-            user_answers.append(st.session_state[j])
+        for j in range(len(questions)):
+            user_answers.append(st.session_state.get(f'answer_{j}', None))
         score = 0
         for j, user_answer in enumerate(user_answers):
             if user_answer == answers[j]:
@@ -48,10 +66,7 @@ else:
         st.session_state.show_results = True
 
 
-    if 'show_results' not in st.session_state:
-        st.session_state.show_results = False
-
-    with st.form(key='quiz', clear_on_submit=False, border=False):
+    with st.form(key='quiz_form', clear_on_submit=False):
         for i in range(len(questions)):
             st.write(f'Q.{i + 1} {questions[i]}')
             if st.session_state.show_results:
@@ -63,14 +78,19 @@ else:
                     else:
                         st.write(option)
             else:
-                st.radio(label='Options',
-                         options=sorted(options[i]),
-                         label_visibility='visible',
-                         index=None,
-                         key=i,
-                         )
+                st.radio(
+                    label=f'Options for Q{i + 1}',
+                    options=sorted(options[i]),
+                    label_visibility='visible',
+                    index=None,
+                    key=f'answer_{i}',
+                )
             st.write('<hr>', unsafe_allow_html=True)
-        st.form_submit_button(label='Submit', type='primary', on_click=check_answers)
+        submit_button = st.form_submit_button(label='Submit', type='primary', on_click=check_answers)
 
     if st.session_state.score != '':
         st.write(f'<h3 style=color:green>You scored: {st.session_state.score}/10</h3>', unsafe_allow_html=True)
+
+else:
+    st.image(image=NO_DATA_IMAGE, width=300)
+    st.write('No Questions found for this combination. Try something else.')

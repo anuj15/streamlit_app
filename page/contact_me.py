@@ -1,7 +1,8 @@
 import re
 
-from common_functions import mail
 import streamlit as st
+
+from common_functions import mail
 
 
 def email():
@@ -21,9 +22,8 @@ def email():
     mail(to_email, msg)
     st.success(body='Your email was sent successfully.')
 
-
 TITLE = 'Contact Me'
-st.write(f'<h1 style=text-align:center>{TITLE}</h1>', unsafe_allow_html=True)
+st.write(f'<h1 style=text-align:center>{TITLE}</h1><hr>', unsafe_allow_html=True)
 
 with st.form(key='send_mail'):
     st.text_input(label='Your Email Address', key='to_email', placeholder='Enter your email here...')
